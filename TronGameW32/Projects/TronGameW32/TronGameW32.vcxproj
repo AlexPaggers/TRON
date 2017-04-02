@@ -83,11 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Code\Game\GameObject.cpp" />
+    <ClCompile Include="..\..\Code\Game\Grid.cpp" />
     <ClCompile Include="..\..\Code\Game\Player.cpp" />
     <ClCompile Include="..\..\Code\Game\TronGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Code\Game\GameObject.h" />
+    <ClInclude Include="..\..\Code\Game\Grid.h" />
     <ClInclude Include="..\..\Code\Game\MessageTypes.h" />
     <ClInclude Include="..\..\Code\Game\Player.h" />
     <ClInclude Include="..\..\Code\Game\TronGame.h" />
