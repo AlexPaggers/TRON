@@ -7,6 +7,9 @@
 
 #include <Game/MessageTypes.h>
 
+#include <Game/GameObject.h>
+#include <Game/Player.h>
+
 
 using TcpClient = sf::TcpSocket;
 using TcpClientPtr = std::unique_ptr<TcpClient>;
@@ -19,6 +22,10 @@ constexpr int SERVER_UDP_PORT(53001);
 void client();
 bool connect(TcpClient&);
 void input(TcpClient&);
+void rendering(TcpClient&);
+
+Player * p_player = new Player();
+
 
 bool connect(TcpClient& socket)
 {
@@ -68,58 +75,71 @@ void client()
 					pong << NetMsg::PONG;
 					socket.send(pong);
 				}
+				else if (msg == NetMsg::RIGHT)
+				{
+
+				}
 			}
 		} while (status != sf::Socket::Disconnected);
 
 	});
 
-	return input(socket);
+	return rendering(socket);
 }
 
 void input(TcpClient &socket)
 {
-	while (true)
+	//while (true)
 	{
+		sf::Packet packet;
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
+			p_player->getCurrentDirection() != Player::CurrentDirection::UP)
 		{
-			sf::Packet packet;
 			packet << NetMsg::UP << input;
-			socket.send(packet);
-
+			p_player->setDirection(Player::CurrentDirection::UP);
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
+				p_player->getCurrentDirection() != Player::CurrentDirection::LEFT)
 		{
-			sf::Packet packet;
 			packet << NetMsg::LEFT << input;
-			socket.send(packet);
-
+			p_player->setDirection(Player::CurrentDirection::LEFT);
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) &&
+				p_player->getCurrentDirection() != Player::CurrentDirection::DOWN)
 		{
-			sf::Packet packet;
 			packet << NetMsg::DOWN << input;
-			socket.send(packet);
-
+			p_player->setDirection(Player::CurrentDirection::DOWN);
 		}
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) &&
+				p_player->getCurrentDirection() != Player::CurrentDirection::RIGHT)
 		{
-			sf::Packet packet;
+			
 			packet << NetMsg::RIGHT << input;
-			socket.send(packet);
-
+			p_player->setDirection(Player::CurrentDirection::RIGHT);
+		}
+		
+		else
+		{
+			packet << NetMsg::INVALID << input;
 		}
 
-		//sf::Packet packet;
+		socket.send(packet);
+
 		//packet << NetMsg::CHAT << input;
-		//socket.send(packet);
+
 	}
 }
 
 int main()
+{
+	client();
+}
+
+void rendering(TcpClient &socket)
 {
 	sf::RenderWindow window(sf::VideoMode(700, 700), "ISTHISAJOJOREFERENCE?");
 
@@ -130,15 +150,16 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+			if (event.type == sf::Event::KeyPressed)
+			{
+				input(socket);
+			}
 		}
 
 		window.clear();
+		p_player->tick(window);
 		window.display();
 
-		client();
-
 	}
-
-	return 0;
 }
-

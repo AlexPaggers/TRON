@@ -170,18 +170,10 @@ void processChatMsg(sf::Packet &packet, Client & sender, TcpClients & tcp_client
 	std::string string;
 	packet >> string;
 
-	std::cout << "Net Msg: (" << sender.getClientID() << ") "
-		<< string << std::endl;
-
-	std::cout << "Latency: " << sender.getLatency().count()
-		<< "us" << std::endl;
 
 	// send the packet to other clients
 	for (auto& client : tcp_clients)
 	{
-		if (sender == client)
-			continue;
-
 		client.getSocket().send(packet);
 	}
 }
