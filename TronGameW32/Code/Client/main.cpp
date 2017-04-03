@@ -29,6 +29,10 @@ Player * p_player	= new Player(Player::PlayerColour::BLUE);
 Grid * p_grid		= new Grid();
 
 
+sf::Time elapsed1;
+
+
+
 bool connect(TcpClient& socket)
 {
 	auto status = socket.connect(SERVER_IP, SERVER_TCP_PORT);
@@ -144,7 +148,7 @@ int main()
 void rendering(TcpClient &socket)
 {
 	sf::RenderWindow window(sf::VideoMode(700, 700), "ISTHISAJOJOREFERENCE?");
-
+	sf::Clock clock;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -156,7 +160,18 @@ void rendering(TcpClient &socket)
 			if (event.type == sf::Event::KeyPressed)
 			{
 				input(socket);
+
 			}
+		
+		}
+
+		elapsed1 = clock.getElapsedTime();
+		if (elapsed1.asSeconds() > 1)
+		{
+			sf::Packet packet;
+			packet << NetMsg::PING << input;
+			socket.send(packet);
+			clock.restart();
 		}
 
 		window.clear();

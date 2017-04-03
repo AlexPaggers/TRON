@@ -29,7 +29,7 @@ void Player::tick(sf::RenderWindow &_window)
 		break;
 		default:
 			{
-
+				//
 			}
 		break;
 	}
@@ -43,17 +43,15 @@ void Player::draw(sf::RenderWindow &_window)
 }
 
 Player::Player(PlayerColour _starting_colour)
-{
-	
+{	
 
 	sprite.setPosition(sf::Vector2f(50, 50));
-	//sprite.setScale(1, 1);
 
 	if (!m_texture.loadFromFile("..\\..\\Resources\\player.png"))
 	{
 		return;
 	}
-	//m_rect.setTexture(&m_texture);
+
 	sprite.setTexture(m_texture);
 }
 

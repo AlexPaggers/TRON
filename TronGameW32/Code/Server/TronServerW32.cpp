@@ -30,6 +30,7 @@ void ping(TcpClients& tcp_clients);
 void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector);
 void runServer();
 
+
 void ping(TcpClients& tcp_clients)
 {
 	constexpr auto timeout = 10s;
@@ -64,6 +65,7 @@ void listen(sf::TcpListener& tcp_listener, sf::SocketSelector& selector, TcpClie
 {
 	while (true)
 	{
+
 		const sf::Time timeout = sf::Time(sf::milliseconds(250));
 		if (selector.wait(timeout))
 		{
@@ -81,6 +83,7 @@ void listen(sf::TcpListener& tcp_listener, sf::SocketSelector& selector, TcpClie
 		{
 			ping(tcp_clients);
 		}
+
 	}
 }
 
@@ -98,8 +101,6 @@ void connect(sf::TcpListener& tcp_listener, sf::SocketSelector& selector, TcpCli
 
 		std::string welcome_msg;
 		std::string client_count = std::to_string(tcp_clients.size());
-		welcome_msg = "Welcome to Huxy's chat room \n";
-		welcome_msg += "There are " + client_count + " connected clients";
 
 		sf::Packet packet;
 		packet << NetMsg::CHAT << welcome_msg;
@@ -124,34 +125,38 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector)
 				break;
 			}
 
-			int header = 0;
-			packet >> header;
+			int header = 0;        ////////
+			packet >> header;      ////////
 
 			NetMsg msg = static_cast<NetMsg>(header);
 			if (msg == NetMsg::CHAT)
 			{
 				processChatMsg(packet, sender, tcp_clients);
 			}
-			else if (msg == NetMsg::PONG)
+			else if (msg == NetMsg::PING)
 			{
-				sender.pong();
+				std::cout << "aaaaaaaa" << std::endl;
 			}
 			else if (msg == NetMsg::UP)
 			{
-				std::cout << "UP";
+				std::cout << "Client (" << sender.getClientID() << ") -" << "UP" << std::endl;
 			}
 			else if (msg == NetMsg::LEFT)
 			{
-				std::cout << "LEFT";
+				std::cout << "Client (" << sender.getClientID() << ") -" << "LEFT" << std::endl;
 			}
 			else if (msg == NetMsg::DOWN)
 			{
-				std::cout << "DOWN";
+				std::cout << "Client (" << sender.getClientID() << ") -" << "DOWN" << std::endl;
 			}
 			else if (msg == NetMsg::RIGHT)
 			{
-				std::cout << "RIGHT";
+				std::cout << "Client (" << sender.getClientID() << ") -" << "RIGHT" << std::endl;
+				processChatMsg(packet, sender, tcp_clients);
 			}
+
+
+
 		}
 	}
 }
@@ -170,10 +175,17 @@ void processChatMsg(sf::Packet &packet, Client & sender, TcpClients & tcp_client
 	std::string string;
 	packet >> string;
 
+	sf::Packet client_info;
+	int direction = 0;
+	packet >> direction;
+
+	//if()
+	//client_info << direction;
 
 	// send the packet to other clients
 	for (auto& client : tcp_clients)
 	{
+		client_info << sender.getClientID() << direction;
 		client.getSocket().send(packet);
 	}
 }

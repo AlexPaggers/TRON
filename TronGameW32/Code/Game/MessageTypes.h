@@ -12,6 +12,7 @@ enum NetMsg : sf::Int32
 	DOWN			= 6,
 	LEFT			= 7,
 	RIGHT			= 8,
+	DIED			= 9,
 
 
 };
