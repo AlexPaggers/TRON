@@ -9,6 +9,7 @@
 
 #include <Game/GameObject.h>
 #include <Game/Player.h>
+#include <Game/Grid.h>
 
 
 using TcpClient = sf::TcpSocket;
@@ -24,7 +25,8 @@ bool connect(TcpClient&);
 void input(TcpClient&);
 void rendering(TcpClient&);
 
-Player * p_player = new Player();
+Player * p_player	= new Player(Player::PlayerColour::BLUE);
+Grid * p_grid		= new Grid();
 
 
 bool connect(TcpClient& socket)
@@ -132,7 +134,7 @@ void input(TcpClient &socket)
 		//packet << NetMsg::CHAT << input;
 
 	}
-}
+} 
 
 int main()
 {
@@ -159,6 +161,11 @@ void rendering(TcpClient &socket)
 
 		window.clear();
 		p_player->tick(window);
+		for (int i = 0; i < p_grid->m_tiles.size(); i++)
+		{
+			p_grid->m_tiles[i].setTexture(Player::PlayerColour::BLUE);
+			p_grid->m_tiles[i].tick(window);
+		}
 		window.display();
 
 	}

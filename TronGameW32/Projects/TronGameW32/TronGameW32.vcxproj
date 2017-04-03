@@ -85,6 +85,7 @@
     <ClCompile Include="..\..\Code\Game\GameObject.cpp" />
     <ClCompile Include="..\..\Code\Game\Grid.cpp" />
     <ClCompile Include="..\..\Code\Game\Player.cpp" />
+    <ClCompile Include="..\..\Code\Game\Tile.cpp" />
     <ClCompile Include="..\..\Code\Game\TronGame.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -92,7 +93,11 @@
     <ClInclude Include="..\..\Code\Game\Grid.h" />
     <ClInclude Include="..\..\Code\Game\MessageTypes.h" />
     <ClInclude Include="..\..\Code\Game\Player.h" />
+    <ClInclude Include="..\..\Code\Game\Tile.h" />
     <ClInclude Include="..\..\Code\Game\TronGame.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\Resources\player.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
