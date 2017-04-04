@@ -18,6 +18,7 @@ void GameObject::draw(sf::RenderWindow & _window)
 
 void GameObject::tick(sf::RenderWindow & _window)
 {
+	//sprite.setPosition(m_pos);
 	draw(_window);
 }
 

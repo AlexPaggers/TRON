@@ -25,8 +25,9 @@ bool connect(TcpClient&);
 void input(TcpClient&);
 void rendering(TcpClient&);
 
-Player * p_player	= new Player(Player::PlayerColour::BLUE);
-Grid * p_grid		= new Grid();
+Grid * p_grid = new Grid();
+Player * p_player	= new Player(GameObject::PlayerColour::BLUE);
+
 
 
 sf::Time elapsed1;
@@ -100,10 +101,13 @@ void input(TcpClient &socket)
 		sf::Packet packet;
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
-			p_player->getCurrentDirection() != Player::CurrentDirection::UP)
+			p_player->getCurrentDirection() != Player::CurrentDirection::UP &&
+			p_player->getGridPos() > p_grid->m_tiles[p_player->getGridPos()].getWidth())
 		{
 			packet << NetMsg::UP << input;
 			p_player->setDirection(Player::CurrentDirection::UP);
+			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
+			p_player->setGridPos((p_player->getGridPos() - p_grid->m_tiles[p_player->getGridPos()].getWidth()), p_grid->m_tiles);
 		}
 
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
@@ -111,6 +115,8 @@ void input(TcpClient &socket)
 		{
 			packet << NetMsg::LEFT << input;
 			p_player->setDirection(Player::CurrentDirection::LEFT);
+			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
+			p_player->setGridPos((p_player->getGridPos() - 1), p_grid->m_tiles);
 		}
 
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) &&
@@ -118,6 +124,8 @@ void input(TcpClient &socket)
 		{
 			packet << NetMsg::DOWN << input;
 			p_player->setDirection(Player::CurrentDirection::DOWN);
+			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
+			p_player->setGridPos((p_player->getGridPos() + p_grid->m_tiles[p_player->getGridPos()].getWidth()), p_grid->m_tiles);
 		}
 
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) &&
@@ -126,6 +134,8 @@ void input(TcpClient &socket)
 			
 			packet << NetMsg::RIGHT << input;
 			p_player->setDirection(Player::CurrentDirection::RIGHT);
+			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
+			p_player->setGridPos((p_player->getGridPos() + 1), p_grid->m_tiles);
 		}
 		
 		else
@@ -178,7 +188,7 @@ void rendering(TcpClient &socket)
 		p_player->tick(window);
 		for (int i = 0; i < p_grid->m_tiles.size(); i++)
 		{
-			p_grid->m_tiles[i].setTexture(Player::PlayerColour::BLUE);
+			//p_grid->m_tiles[i].setTexture(Player::PlayerColour::BLUE);
 			p_grid->m_tiles[i].tick(window);
 		}
 		window.display();

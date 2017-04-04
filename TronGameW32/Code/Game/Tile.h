@@ -1,7 +1,5 @@
 #pragma once
 #include "GameObject.h"
-#include "Player.h"
-
 
 class Tile :
 	public GameObject
@@ -11,9 +9,12 @@ public:
 	Tile();
 	~Tile();
 
-	void setTexture(Player::PlayerColour _colour);
+	int getWidth()		{ return m_width; }
 
-	bool isUsed() { return m_used; }
+	void setTexture(GameObject::PlayerColour _colour);
+
+	void makeUsed()		{ m_used = true; }
+	bool isUsed()		{ return m_used; }
 
 	void draw(sf::RenderWindow & _window) override;
 

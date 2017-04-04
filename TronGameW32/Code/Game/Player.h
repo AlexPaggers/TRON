@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject.h"
-
+#include <Game/Grid.h>
 
 class Player : public GameObject
 {
@@ -15,11 +15,6 @@ public:
 		NONE,
 	};
 
-	enum PlayerColour
-	{
-		BLUE,
-		ORANGE,
-	};
 
 	void tick(sf::RenderWindow &_window) override;
 	void draw(sf::RenderWindow &_window) override;
@@ -32,13 +27,19 @@ public:
 	PlayerColour		getPlayerColour()									{ return m_current_colour; }
 	void				setColour(PlayerColour _current_colour)				{ m_current_colour = _current_colour; }
 
+	// Get/Set Player's position on the grid
+	int					getGridPos()										{ return m_current_coord; }
+	void				setGridPos(int _index, std::vector<Tile> _tiles);
+
 	Player	() = default;
-	Player	(PlayerColour _starting_colour);
+	Player	(GameObject::PlayerColour _starting_colour);
 	~Player	();
 
 private:
 
 	CurrentDirection	m_current_direction = CurrentDirection::NONE;
 	PlayerColour		m_current_colour;
+
+	int m_current_coord						= 0;
 };
 

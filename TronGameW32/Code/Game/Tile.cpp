@@ -40,22 +40,27 @@ Tile::~Tile()
 
 
 
-void Tile::setTexture(Player::PlayerColour _colour)
+void Tile::setTexture(GameObject::PlayerColour _colour)
 {
 	switch (_colour)
 	{
-		case Player::PlayerColour::BLUE:
+	case GameObject::PlayerColour::BLUE:
 		{
 			sprite.setTexture(m_blue);
+			break;
 		}
-		break;
-		case Player::PlayerColour::ORANGE:
+	case GameObject::PlayerColour::ORANGE:
 		{
 			sprite.setTexture(m_orange);
+			break;
 		}
-		break;
+		
 		default:
-		break;
+		{
+			
+			break;
+		}
+		
 	}
 
 	m_used = true;
@@ -64,5 +69,6 @@ void Tile::setTexture(Player::PlayerColour _colour)
 
 void Tile::draw(sf::RenderWindow & _window)
 {
+	
 	_window.draw(sprite);
 }

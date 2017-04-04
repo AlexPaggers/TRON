@@ -4,6 +4,13 @@
 class GameObject : public sf::Sprite
 {
 public:
+	
+	enum PlayerColour
+	{
+		BLUE,
+		ORANGE,
+	};
+
 	GameObject();
 	virtual ~GameObject();
 
