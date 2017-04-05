@@ -16,8 +16,8 @@ Tile::Tile(int _index)
 
 	m_index = _index;
 
-	m_pos.x = (m_index % m_width) * 51;
-	m_pos.y = (m_index / m_width) * 51;
+	m_pos.x = (m_index % m_width) * 50;
+	m_pos.y = (m_index / m_width) * 50;
 
 
 	sprite.setPosition(m_pos);

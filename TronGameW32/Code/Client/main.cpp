@@ -4,6 +4,8 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
+#include <SFML/Window/Joystick.hpp>
+
 
 #include <Game/MessageTypes.h>
 
@@ -24,14 +26,12 @@ void client();
 bool connect(TcpClient&);
 void input(TcpClient&);
 void rendering(TcpClient&);
+void move();
 
 Grid * p_grid = new Grid();
-Player * p_player	= new Player(GameObject::PlayerColour::BLUE);
-
-
+std::vector<Player> p_players;
 
 sf::Time elapsed1;
-
 
 
 bool connect(TcpClient& socket)
@@ -67,7 +67,12 @@ void client()
 			if (status == sf::Socket::Done)
 			{
 				int header = 0;
+				int clientID = 0;
+
 				packet >> header;
+				packet >> clientID;
+
+
 
 				NetMsg msg = static_cast<NetMsg>(header);
 				if (msg == NetMsg::CHAT)
@@ -76,15 +81,33 @@ void client()
 					packet >> str;
 					std::cout << "< " << str << std::endl;
 				}
-				else if (msg == NetMsg::PING)
+				else if (msg == NetMsg::UP)
 				{
-					sf::Packet pong;
-					pong << NetMsg::PONG;
-					socket.send(pong);
+					packet >> clientID;
+
+					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
+					p_players[clientID].setGridPos((p_players[clientID].getGridPos() - p_grid->m_tiles[p_players[clientID].getGridPos()].getWidth()), p_grid->m_tiles);
 				}
 				else if (msg == NetMsg::RIGHT)
 				{
+					//packet >> clientID;
 
+					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
+					p_players[clientID].setGridPos((p_players[clientID].getGridPos() + 1), p_grid->m_tiles);
+				}
+				else if (msg == NetMsg::DOWN)
+				{
+					packet >> clientID;
+
+					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
+					p_players[clientID].setGridPos((p_players[clientID].getGridPos() + p_grid->m_tiles[p_players[clientID].getGridPos()].getWidth()), p_grid->m_tiles);
+				}
+				else if (msg == NetMsg::LEFT)
+				{
+					packet >> clientID;
+
+					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
+					p_players[clientID].setGridPos((p_players[clientID].getGridPos() - 1), p_grid->m_tiles);
 				}
 			}
 		} while (status != sf::Socket::Disconnected);
@@ -100,42 +123,32 @@ void input(TcpClient &socket)
 	{
 		sf::Packet packet;
 
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) &&
-			p_player->getCurrentDirection() != Player::CurrentDirection::UP &&
-			p_player->getGridPos() > p_grid->m_tiles[p_player->getGridPos()].getWidth())
+
+		sf::Joystick::update();
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			packet << NetMsg::UP << input;
-			p_player->setDirection(Player::CurrentDirection::UP);
-			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
-			p_player->setGridPos((p_player->getGridPos() - p_grid->m_tiles[p_player->getGridPos()].getWidth()), p_grid->m_tiles);
+			
 		}
 
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) &&
-				p_player->getCurrentDirection() != Player::CurrentDirection::LEFT)
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
 			packet << NetMsg::LEFT << input;
-			p_player->setDirection(Player::CurrentDirection::LEFT);
-			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
-			p_player->setGridPos((p_player->getGridPos() - 1), p_grid->m_tiles);
+
 		}
 
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) &&
-				p_player->getCurrentDirection() != Player::CurrentDirection::DOWN)
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
 			packet << NetMsg::DOWN << input;
-			p_player->setDirection(Player::CurrentDirection::DOWN);
-			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
-			p_player->setGridPos((p_player->getGridPos() + p_grid->m_tiles[p_player->getGridPos()].getWidth()), p_grid->m_tiles);
+
 		}
 
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) &&
-				p_player->getCurrentDirection() != Player::CurrentDirection::RIGHT)
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
 			
 			packet << NetMsg::RIGHT << input;
-			p_player->setDirection(Player::CurrentDirection::RIGHT);
-			p_grid->m_tiles[p_player->getGridPos()].setTexture(p_player->getPlayerColour());
-			p_player->setGridPos((p_player->getGridPos() + 1), p_grid->m_tiles);
+
 		}
 		
 		else
@@ -152,6 +165,13 @@ void input(TcpClient &socket)
 
 int main()
 {
+	p_players.push_back(Player(GameObject::PlayerColour::BLUE));
+	p_players.push_back(Player(GameObject::PlayerColour::ORANGE));
+
+	p_players.reserve(10);
+
+	p_players[0].setGridPos(0, p_grid->m_tiles);
+	p_players[1].setGridPos(16, p_grid->m_tiles);
 	client();
 }
 
@@ -161,6 +181,8 @@ void rendering(TcpClient &socket)
 	sf::Clock clock;
 	while (window.isOpen())
 	{
+
+		
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -169,6 +191,7 @@ void rendering(TcpClient &socket)
 
 			if (event.type == sf::Event::KeyPressed)
 			{
+
 				input(socket);
 
 			}
@@ -179,13 +202,18 @@ void rendering(TcpClient &socket)
 		if (elapsed1.asSeconds() > 1)
 		{
 			sf::Packet packet;
-			packet << NetMsg::PING << input;
+			packet << NetMsg::PING;
 			socket.send(packet);
 			clock.restart();
 		}
 
 		window.clear();
-		p_player->tick(window);
+
+
+		for (auto &player : p_players)
+		{
+			player.tick(window);
+		}
 		for (int i = 0; i < p_grid->m_tiles.size(); i++)
 		{
 			//p_grid->m_tiles[i].setTexture(Player::PlayerColour::BLUE);
@@ -194,4 +222,11 @@ void rendering(TcpClient &socket)
 		window.display();
 
 	}
+
+	delete p_grid;
+	p_grid = nullptr;
+
+
+
 }
+

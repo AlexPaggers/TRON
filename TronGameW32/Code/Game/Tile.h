@@ -20,7 +20,7 @@ public:
 
 private:
 
-	const int m_width = 10;
+	const int m_width = 14;
 	int m_index;
 
 	bool m_used = false;

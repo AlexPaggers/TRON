@@ -2,6 +2,7 @@
 #include <chrono>
 #include <memory>
 #include <SFML/Network.hpp>
+#include <Game/MessageTypes.h>
 
 using namespace std::chrono_literals;
 class Client
@@ -21,6 +22,9 @@ public:
 	const auto& getLatency()  const { return latency; }
 	int getClientID()         const { return id; }
 
+	void setCurrentDirection(NetMsg _new_direction) { m_current_direction = _new_direction; }
+	NetMsg getCurrentDirection()					{ return m_current_direction; }
+
 	Client& operator=(Client&&);
 	bool operator==(const Client& rhs) { return id == rhs.id; }
 
@@ -31,4 +35,7 @@ private:
 	std::chrono::steady_clock::time_point timestamp = std::chrono::steady_clock::now();
 	std::chrono::microseconds latency = 100us;
 	int id = next_id++;
+
+	NetMsg m_current_direction = NetMsg::RIGHT;
+
 };

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <SFML\Network.hpp>
+#include <SFML\Window.hpp>
 
 #include <Game\MessageTypes.h>
 #include "Client.h"
@@ -31,6 +32,9 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector);
 void runServer();
 
 
+int header = 0;
+
+
 void ping(TcpClients& tcp_clients)
 {
 	constexpr auto timeout = 10s;
@@ -49,6 +53,7 @@ void ping(TcpClients& tcp_clients)
 void runServer()
 {
 	sf::TcpListener tcp_listener;
+
 	if (!bindServerPort(tcp_listener))
 	{
 		return;
@@ -125,7 +130,6 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector)
 				break;
 			}
 
-			int header = 0;        ////////
 			packet >> header;      ////////
 
 			NetMsg msg = static_cast<NetMsg>(header);
@@ -135,24 +139,27 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector)
 			}
 			else if (msg == NetMsg::PING)
 			{
-				std::cout << "aaaaaaaa" << std::endl;
+				processChatMsg(packet, sender, tcp_clients);
 			}
 			else if (msg == NetMsg::UP)
 			{
 				std::cout << "Client (" << sender.getClientID() << ") -" << "UP" << std::endl;
+				sender.setCurrentDirection(NetMsg::UP);
 			}
 			else if (msg == NetMsg::LEFT)
 			{
 				std::cout << "Client (" << sender.getClientID() << ") -" << "LEFT" << std::endl;
+				sender.setCurrentDirection(NetMsg::LEFT);
 			}
 			else if (msg == NetMsg::DOWN)
 			{
 				std::cout << "Client (" << sender.getClientID() << ") -" << "DOWN" << std::endl;
+				sender.setCurrentDirection(NetMsg::DOWN);
 			}
 			else if (msg == NetMsg::RIGHT)
 			{
 				std::cout << "Client (" << sender.getClientID() << ") -" << "RIGHT" << std::endl;
-				processChatMsg(packet, sender, tcp_clients);
+				sender.setCurrentDirection(NetMsg::RIGHT);
 			}
 
 
@@ -179,15 +186,26 @@ void processChatMsg(sf::Packet &packet, Client & sender, TcpClients & tcp_client
 	int direction = 0;
 	packet >> direction;
 
-	//if()
-	//client_info << direction;
+
+	NetMsg msg = static_cast<NetMsg>(header);
+	if (header == NetMsg::PING && 
+		sender.getClientID() == 0)
+	{
+		std::cout << "Move, fool" << std::endl;
+		for (auto& client : tcp_clients)
+		{
+			client_info << client.getCurrentDirection() << sender.getClientID();
+			client.getSocket().send(client_info);
+		}
+	}
+
+
 
 	// send the packet to other clients
-	for (auto& client : tcp_clients)
-	{
-		client_info << sender.getClientID() << direction;
-		client.getSocket().send(packet);
-	}
+
+
+	header = 0;
+
 }
 
 bool bindServerPort(sf::TcpListener& listener)
