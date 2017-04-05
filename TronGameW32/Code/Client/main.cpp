@@ -72,18 +72,16 @@ void client()
 				packet >> header;
 				packet >> clientID;
 
-
+				if (clientID > 1)
+				{
+					clientID = 1;
+				}
 
 				NetMsg msg = static_cast<NetMsg>(header);
-				if (msg == NetMsg::CHAT)
+				
+				 if (msg == NetMsg::UP)
 				{
-					std::string str;
-					packet >> str;
-					std::cout << "< " << str << std::endl;
-				}
-				else if (msg == NetMsg::UP)
-				{
-					packet >> clientID;
+					//packet >> clientID;
 
 					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
 					p_players[clientID].setGridPos((p_players[clientID].getGridPos() - p_grid->m_tiles[p_players[clientID].getGridPos()].getWidth()), p_grid->m_tiles);
@@ -95,16 +93,16 @@ void client()
 					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
 					p_players[clientID].setGridPos((p_players[clientID].getGridPos() + 1), p_grid->m_tiles);
 				}
-				else if (msg == NetMsg::DOWN)
+			else if (msg == NetMsg::DOWN)
 				{
-					packet >> clientID;
+					//packet >> clientID;
 
 					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
 					p_players[clientID].setGridPos((p_players[clientID].getGridPos() + p_grid->m_tiles[p_players[clientID].getGridPos()].getWidth()), p_grid->m_tiles);
 				}
 				else if (msg == NetMsg::LEFT)
 				{
-					packet >> clientID;
+					//packet >> clientID;
 
 					p_grid->m_tiles[p_players[clientID].getGridPos()].setTexture(p_players[clientID].getPlayerColour());
 					p_players[clientID].setGridPos((p_players[clientID].getGridPos() - 1), p_grid->m_tiles);
