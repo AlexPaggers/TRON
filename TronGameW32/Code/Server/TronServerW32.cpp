@@ -32,7 +32,7 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector);
 void runServer();
 
 
-int header = 0;
+sf::Int8 header = 0;
 
 
 void ping(TcpClients& tcp_clients)
@@ -121,7 +121,8 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector)
 		if (selector.isReady(sender_socket))
 		{
 			sf::Packet packet;
-			if (sender_socket.receive(packet) == sf::Socket::Disconnected)
+			auto status = sender_socket.receive(packet);
+			if (status == sf::Socket::Disconnected)
 			{
 				selector.remove(sender_socket);
 				sender_socket.disconnect();
@@ -129,39 +130,40 @@ void receiveMsg(TcpClients& tcp_clients, sf::SocketSelector& selector)
 					<< ") Disconnected" << std::endl;
 				break;
 			}
+			if (status == sf::Socket::Done)
+			{
+				packet >> header;      ////////
 
-			packet >> header;      ////////
-
-			NetMsg msg = static_cast<NetMsg>(header);
-			if (msg == NetMsg::CHAT)
-			{
-				processChatMsg(packet, sender, tcp_clients);
+				NetMsg msg = static_cast<NetMsg>(header);
+				if (msg == NetMsg::CHAT)
+				{
+					processChatMsg(packet, sender, tcp_clients);
+				}
+				else if (msg == NetMsg::PING)
+				{
+					processChatMsg(packet, sender, tcp_clients);
+				}
+				else if (msg == NetMsg::UP)
+				{
+					std::cout << "Client (" << sender.getClientID() << ") -" << "UP" << std::endl;
+					sender.setCurrentDirection(NetMsg::UP);
+				}
+				else if (msg == NetMsg::LEFT)
+				{
+					std::cout << "Client (" << sender.getClientID() << ") -" << "LEFT" << std::endl;
+					sender.setCurrentDirection(NetMsg::LEFT);
+				}
+				else if (msg == NetMsg::DOWN)
+				{
+					std::cout << "Client (" << sender.getClientID() << ") -" << "DOWN" << std::endl;
+					sender.setCurrentDirection(NetMsg::DOWN);
+				}
+				else if (msg == NetMsg::RIGHT)
+				{
+					std::cout << "Client (" << sender.getClientID() << ") -" << "RIGHT" << std::endl;
+					sender.setCurrentDirection(NetMsg::RIGHT);
+				}
 			}
-			else if (msg == NetMsg::PING)
-			{
-				processChatMsg(packet, sender, tcp_clients);
-			}
-			else if (msg == NetMsg::UP)
-			{
-				std::cout << "Client (" << sender.getClientID() << ") -" << "UP" << std::endl;
-				sender.setCurrentDirection(NetMsg::UP);
-			}
-			else if (msg == NetMsg::LEFT)
-			{
-				std::cout << "Client (" << sender.getClientID() << ") -" << "LEFT" << std::endl;
-				sender.setCurrentDirection(NetMsg::LEFT);
-			}
-			else if (msg == NetMsg::DOWN)
-			{
-				std::cout << "Client (" << sender.getClientID() << ") -" << "DOWN" << std::endl;
-				sender.setCurrentDirection(NetMsg::DOWN);
-			}
-			else if (msg == NetMsg::RIGHT)
-			{
-				std::cout << "Client (" << sender.getClientID() << ") -" << "RIGHT" << std::endl;
-				sender.setCurrentDirection(NetMsg::RIGHT);
-			}
-
 
 
 		}
@@ -179,22 +181,27 @@ void clearStaleCli(TcpClients & tcp_clients)
 
 void processChatMsg(sf::Packet &packet, Client & sender, TcpClients & tcp_clients)
 {
-	std::string string;
-	packet >> string;
-
 	sf::Packet client_info;
-	int direction = 0;
-	packet >> direction;
-
 
 	NetMsg msg = static_cast<NetMsg>(header);
 	if (header == NetMsg::PING && 
-		sender.getClientID() == 0)
+		sender.getClientID() == 0 &&
+		tcp_clients.size() > 1)
 	{
-		std::cout << "Move, fool" << std::endl;
+		std::cout << "Step" << std::endl;
 		for (auto& client : tcp_clients)
 		{
-			client_info << client.getCurrentDirection() << sender.getClientID();
+			sf::Int8 id;
+			sf::Int8 dir;
+			id = client.getClientID();
+			dir = static_cast<sf::Int8>(client.getCurrentDirection());
+			client_info << dir;
+			client_info << id;
+		}
+		for (auto& client : tcp_clients)
+		{
+			sf::Int8 id;
+			id = client.getClientID();
 			client.getSocket().send(client_info);
 		}
 	}

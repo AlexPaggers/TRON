@@ -27,5 +27,6 @@ private:
 
 	sf::Texture m_blue;
 	sf::Texture m_orange;
+	sf::Texture m_wall;
 };
 

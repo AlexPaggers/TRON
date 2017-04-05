@@ -5,35 +5,6 @@
 void Player::tick(sf::RenderWindow &_window)
 {
 	
-	//switch (m_current_direction)
-	//{
-	//	case CurrentDirection::DOWN:
-	//		{
-	//			sprite.move(sf::Vector2f(0.00f, 0.04f));
-	//		}
-	//	break;
-	//	case CurrentDirection::LEFT:
-	//		{
-	//			sprite.move(sf::Vector2f(-0.04f, 0.00f));
-	//		}
-	//	break;
-	//	case CurrentDirection::RIGHT:
-	//		{
-	//			sprite.move(sf::Vector2f(0.04f, 0.00f));
-	//		}
-	//	break;
-	//	case CurrentDirection::UP:
-	//		{
-	//			sprite.move(sf::Vector2f(0.00f, -0.04f));
-	//		}
-	//	break;
-	//	default:
-	//		{
-	//			//
-	//		}
-	//	break;
-	//}
-
 	draw(_window);
 }
 

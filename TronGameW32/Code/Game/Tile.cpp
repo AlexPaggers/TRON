@@ -14,11 +14,22 @@ Tile::Tile(int _index)
 		return;
 	}
 
+	if (!m_wall.loadFromFile("..\\..\\Resources\\wall.png"))
+	{
+		return;
+	}
+
 	m_index = _index;
 
 	m_pos.x = (m_index % m_width) * 50;
 	m_pos.y = (m_index / m_width) * 50;
 
+	if (_index < m_width ||
+		 _index > 195 - m_width)
+	{
+		makeUsed();
+		sprite.setTexture(m_wall);
+	}
 
 	sprite.setPosition(m_pos);
 
